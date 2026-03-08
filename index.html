@@ -1,0 +1,100 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Gestion de Stock CHL</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+        }
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">Connexion au Système de Gestion de Stock CHL</div>
+                    <div class="card-body">
+                        <form id="loginForm">
+                            <div class="mb-3">
+                                <label for="discord" class="form-label">Nom d'utilisateur Discord</label>
+                                <input type="text" class="form-control" id="discord" required>
+                            </div>
+                            <button type="button" class="btn btn-secondary mb-3" id="sendCode">Envoyer un code</button>
+                            <div class="mb-3">
+                                <label for="code" class="form-label">Code reçu</label>
+                                <input type="text" class="form-control" id="code" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Se connecter</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Assumez que le bot expose une API à cette base (à ajuster selon l'implémentation du bot)
+        const apiBase = '/api'; // Ou 'http://localhost:3000/api' pour le développement local
+
+        document.getElementById('sendCode').addEventListener('click', async () => {
+            const user = document.getElementById('discord').value.trim();
+            if (!user) return alert('Veuillez entrer votre nom d\'utilisateur Discord.');
+            try {
+                const res = await fetch(`${apiBase}/send_code?user=${encodeURIComponent(user)}`);
+                if (res.ok) {
+                    alert('Code envoyé en message privé sur Discord. Il expire dans 10 minutes.');
+                } else {
+                    alert('Erreur lors de l\'envoi du code.');
+                }
+            } catch (e) {
+                alert('Erreur de connexion au serveur. Vérifiez si le bot est en ligne.');
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const user = document.getElementById('discord').value.trim();
+            const code = document.getElementById('code').value.trim();
+            if (!user || !code) return alert('Veuillez remplir tous les champs.');
+            try {
+                const res = await fetch(`${apiBase}/verify?user=${encodeURIComponent(user)}&code=${encodeURIComponent(code)}`);
+                if (res.ok) {
+                    localStorage.setItem('loggedIn', 'true');
+                    window.location.href = 'home1.html'; // Redirection vers home1 par défaut, ou ajustez pour un menu si needed
+                } else {
+                    alert('Code incorrect ou expiré.');
+                }
+            } catch (e) {
+                alert('Erreur de connexion au serveur. Vérifiez si le bot est en ligne.');
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
