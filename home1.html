@@ -1,0 +1,110 @@
+<!-- home1.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion Stock Pharmacie - CHL</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+        }
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background-color: #28a745;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+        }
+        .table th {
+            background-color: #e9ecef;
+        }
+        .btn-logout {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .btn-nav {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <button class="btn btn-danger btn-logout" onclick="logout()">Déconnexion</button>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">Gestion du Stock Local - Pharmacie</div>
+                    <div class="card-body">
+                        <a href="home2.html" class="btn btn-info btn-nav">Aller à la Gestion Salle de Soin</a>
+                        <table class="table table-striped" id="stockTable">
+                            <thead>
+                                <tr>
+                                    <th>Article</th>
+                                    <th>Quantité</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        if (!localStorage.getItem('loggedIn')) {
+            window.location.href = 'index.html';
+        }
+
+        const items = [
+            'Tablette', 'Garrot', 'Pansement de terrain', 'Bandage élastique', 'Pansement hémostatique',
+            'Kit chirurgical', 'Pansement compressif', 'Injecteur d\'épinéphrine', 'Injecteur de morphine',
+            'Propofol100ml', 'Propofol 250ml', 'Poche de sang 250ml', 'Poche de sang 500ml',
+            'Poche de sang 750ml', 'Poche de sang 1000ml', 'Kit de réanimation d\'urgence',
+            'Moniteur ECG', 'Fentanyl', 'Ampoulier médical', 'Collier cervical',
+            'Accès intra-osseux(IO)', 'Accès intraveineux(IV)', 'Dispositif de massage cardiaque'
+        ];
+
+        let stock = JSON.parse(localStorage.getItem('pharmacyStock')) || {};
+        items.forEach(item => {
+            if (!(item in stock)) stock[item] = 0;
+        });
+
+        const tbody = document.querySelector('#stockTable tbody');
+        items.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item}</td>
+                <td id="qty-${item.replace(/\s/g, '_')}">${stock[item]}</td>
+                <td>
+                    <button class="btn btn-success btn-sm" onclick="changeQty('${item}', 1)">+1</button>
+                    <button class="btn btn-warning btn-sm" onclick="changeQty('${item}', -1)">-1</button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        function changeQty(item, delta) {
+            stock[item] += delta;
+            if (stock[item] < 0) stock[item] = 0;
+            document.getElementById(`qty-${item.replace(/\s/g, '_')}`).innerText = stock[item];
+            localStorage.setItem('pharmacyStock', JSON.stringify(stock));
+        }
+
+        function logout() {
+            localStorage.removeItem('loggedIn');
+            localStorage.removeItem('pharmacyStock'); // Optionnel: effacer stock à la déconnexion
+            window.location.href = 'index.html';
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
