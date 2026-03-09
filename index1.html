@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Annonces – CHL Gestion Stock</title>
+<link rel="icon" type="image/png" href="https://i.imgur.com/C3KSVoE.png">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080a0c;--surface:#0f1214;--card:#141820;--card2:#181e28;
+  --accent:#c0392b;--accent-glow:rgba(192,57,43,0.3);--accent-light:#e74c3c;
+  --text:#e8eaf0;--text-muted:#6b7280;--border:#1e2530;--border-light:#2a3340;
+  --success:#27ae60;--blue:#3b82f6;--blue-light:#60a5fa;
+  --yellow:#f59e0b;--yellow-light:#fcd34d;--white:#ffffff;
+  --purple:#8b5cf6;--purple-light:#a78bfa;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
+
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 50% -10%,rgba(192,57,43,0.1) 0%,transparent 60%),radial-gradient(ellipse 40% 40% at 80% 80%,rgba(59,130,246,0.05) 0%,transparent 55%);pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(192,57,43,0.022) 1px,transparent 1px),linear-gradient(90deg,rgba(192,57,43,0.022) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
+
+/* ── Navbar ── */
+.navbar{position:sticky;top:0;z-index:100;background:rgba(8,10,12,0.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:0 2rem;height:60px;display:flex;align-items:center;justify-content:space-between;}
+.nav-left{display:flex;align-items:center;gap:.75rem;}
+.nav-logo{width:32px;height:32px;object-fit:contain;}
+.nav-title{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:2px;color:var(--white);}
+.nav-badge{font-size:.62rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;background:rgba(192,57,43,0.12);color:var(--accent-light);border:1px solid rgba(192,57,43,0.2);padding:.2rem .65rem;border-radius:20px;}
+.nav-right{display:flex;gap:.6rem;}
+.btn-nav{display:inline-flex;align-items:center;gap:.4rem;background:transparent;border:1px solid var(--border-light);color:var(--text-muted);padding:.4rem .9rem;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:500;cursor:pointer;text-decoration:none;transition:all .2s;}
+.btn-nav:hover{border-color:var(--accent);color:var(--accent-light);}
+.btn-nav.primary{background:var(--accent);border-color:var(--accent);color:white;}
+.btn-nav.primary:hover{background:var(--accent-light);border-color:var(--accent-light);}
+
+/* ── Hero ── */
+.hero{position:relative;z-index:1;text-align:center;padding:5rem 1.5rem 3.5rem;animation:fadeUp .7s cubic-bezier(.16,1,.3,1) both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+.hero-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:rgba(192,57,43,0.1);border:1px solid rgba(192,57,43,0.2);color:var(--accent-light);font-size:.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:.4rem 1rem;border-radius:30px;margin-bottom:1.5rem;}
+.pulse-dot{width:7px;height:7px;border-radius:50%;background:var(--accent-light);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.4)}}
+
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,7vw,5rem);letter-spacing:4px;color:var(--white);line-height:1;margin-bottom:1.2rem;}
+.hero h1 .red{color:var(--accent-light);}
+.hero h1 .dim{color:var(--text-muted);}
+
+.hero-sub{font-size:1rem;color:var(--text-muted);max-width:560px;margin:0 auto 2.5rem;line-height:1.7;}
+
+.hero-actions{display:flex;align-items:center;justify-content:center;gap:.75rem;flex-wrap:wrap;}
+.btn-hero{display:inline-flex;align-items:center;gap:.5rem;padding:.8rem 1.8rem;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:600;cursor:pointer;text-decoration:none;transition:all .2s;border:none;}
+.btn-hero.main{background:var(--accent);color:white;box-shadow:0 4px 24px var(--accent-glow);}
+.btn-hero.main:hover{background:var(--accent-light);transform:translateY(-2px);box-shadow:0 8px 32px var(--accent-glow);}
+.btn-hero.ghost{background:transparent;border:1px solid var(--border-light);color:var(--text);}
+.btn-hero.ghost:hover{border-color:var(--border-light);background:rgba(255,255,255,0.04);}
+
+/* ── Version banner ── */
+.version-bar{position:relative;z-index:1;background:rgba(39,174,96,0.06);border-top:1px solid rgba(39,174,96,0.15);border-bottom:1px solid rgba(39,174,96,0.15);padding:.7rem 0;text-align:center;overflow:hidden;}
+.version-bar-inner{display:inline-flex;align-items:center;gap:.75rem;font-size:.8rem;}
+.v-tag{background:rgba(39,174,96,0.15);color:#4ade80;border:1px solid rgba(39,174,96,0.25);padding:.15rem .6rem;border-radius:20px;font-weight:700;font-size:.72rem;letter-spacing:1px;}
+.v-text{color:var(--text-muted);}
+.v-date{color:var(--text-muted);font-size:.72rem;}
+
+/* ── Main content ── */
+.content{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:3rem 1.5rem;}
+
+/* Section headers */
+.section-header{display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem;}
+.section-icon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.icon-red{background:rgba(192,57,43,0.12);border:1px solid rgba(192,57,43,0.2);}
+.icon-blue{background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.2);}
+.icon-green{background:rgba(39,174,96,0.12);border:1px solid rgba(39,174,96,0.2);}
+.icon-yellow{background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.2);}
+.icon-purple{background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.2);}
+.section-title-text{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:2px;color:var(--white);}
+
+.section-divider{height:1px;background:linear-gradient(to right,var(--border-light),transparent);margin:3rem 0;}
+
+/* ── Annonces ── */
+.announce-list{display:flex;flex-direction:column;gap:1rem;}
+
+.announce-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.5rem;display:grid;grid-template-columns:auto 1fr auto;gap:1.2rem;align-items:start;transition:border-color .2s;animation:fadeUp .5s cubic-bezier(.16,1,.3,1) both;}
+.announce-card:hover{border-color:var(--border-light);}
+.announce-card.pinned{border-color:rgba(192,57,43,0.3);background:linear-gradient(135deg,var(--card),rgba(192,57,43,0.03));}
+
+.announce-icon-wrap{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
+
+.announce-body{}
+.announce-meta{display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem;flex-wrap:wrap;}
+.announce-tag{font-size:.62rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;padding:.2rem .65rem;border-radius:20px;}
+.tag-update{background:rgba(39,174,96,0.12);color:#4ade80;border:1px solid rgba(39,174,96,0.2);}
+.tag-fix{background:rgba(59,130,246,0.12);color:var(--blue-light);border:1px solid rgba(59,130,246,0.2);}
+.tag-feature{background:rgba(139,92,246,0.12);color:var(--purple-light);border:1px solid rgba(139,92,246,0.2);}
+.tag-important{background:rgba(192,57,43,0.12);color:var(--accent-light);border:1px solid rgba(192,57,43,0.2);}
+.announce-date{font-size:.75rem;color:var(--text-muted);}
+.announce-title{font-size:1rem;font-weight:600;color:var(--white);margin-bottom:.4rem;}
+.announce-desc{font-size:.85rem;color:var(--text-muted);line-height:1.65;}
+.announce-desc strong{color:var(--text);}
+.pin-icon{font-size:.9rem;color:var(--accent-light);flex-shrink:0;}
+
+/* ── Futures fonctionnalités ── */
+.features-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;}
+
+.feature-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.4rem;position:relative;overflow:hidden;transition:border-color .2s,transform .2s;}
+.feature-card:hover{border-color:var(--border-light);transform:translateY(-2px);}
+
+.feature-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.feature-card.fc-blue::before{background:linear-gradient(90deg,var(--blue),var(--blue-light));}
+.feature-card.fc-purple::before{background:linear-gradient(90deg,var(--purple),var(--purple-light));}
+.feature-card.fc-yellow::before{background:linear-gradient(90deg,var(--yellow),var(--yellow-light));}
+.feature-card.fc-green::before{background:linear-gradient(90deg,var(--success),#4ade80);}
+.feature-card.fc-red::before{background:linear-gradient(90deg,var(--accent),var(--accent-light));}
+
+.feature-icon{font-size:1.8rem;margin-bottom:.9rem;}
+.feature-name{font-family:'Bebas Neue',sans-serif;font-size:1.15rem;letter-spacing:1.5px;color:var(--white);margin-bottom:.4rem;}
+.feature-desc{font-size:.83rem;color:var(--text-muted);line-height:1.6;margin-bottom:1rem;}
+.feature-status{display:inline-flex;align-items:center;gap:.4rem;font-size:.68rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.status-dot{width:6px;height:6px;border-radius:50%;}
+.status-soon{color:var(--yellow-light);}
+.status-soon .status-dot{background:var(--yellow-light);}
+.status-wip{color:var(--blue-light);}
+.status-wip .status-dot{background:var(--blue-light);animation:pulse 1.5s infinite;}
+.status-planned{color:var(--text-muted);}
+.status-planned .status-dot{background:var(--text-muted);}
+
+/* ── Roadmap ── */
+.roadmap{display:flex;flex-direction:column;gap:0;}
+.rm-item{display:grid;grid-template-columns:120px auto 1fr;gap:0 1.5rem;align-items:start;}
+.rm-date{font-size:.78rem;font-weight:600;color:var(--text-muted);padding-top:.3rem;text-align:right;}
+.rm-line-wrap{display:flex;flex-direction:column;align-items:center;gap:0;}
+.rm-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;margin-top:.25rem;border:2px solid;}
+.rm-dot.done{background:var(--success);border-color:var(--success);box-shadow:0 0 8px rgba(39,174,96,0.5);}
+.rm-dot.current{background:var(--accent-light);border-color:var(--accent-light);box-shadow:0 0 10px var(--accent-glow);animation:pulseDot 2s infinite;}
+@keyframes pulseDot{0%,100%{box-shadow:0 0 10px var(--accent-glow)}50%{box-shadow:0 0 20px var(--accent-glow)}}
+.rm-dot.upcoming{background:transparent;border-color:var(--border-light);}
+.rm-connector{flex:1;width:2px;background:var(--border);min-height:40px;}
+.rm-item:last-child .rm-connector{display:none;}
+.rm-body{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem 1.2rem;margin-bottom:1rem;}
+.rm-body.current-item{border-color:rgba(192,57,43,0.3);}
+.rm-title{font-size:.9rem;font-weight:600;color:var(--white);margin-bottom:.3rem;}
+.rm-desc{font-size:.82rem;color:var(--text-muted);line-height:1.55;}
+
+/* ── Stats overview ── */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:3rem;}
+@media(max-width:580px){.stats-row{grid-template-columns:1fr;}}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.2rem;text-align:center;}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:2px;color:var(--white);line-height:1;}
+.stat-num.red{color:var(--accent-light);}
+.stat-num.blue{color:var(--blue-light);}
+.stat-num.green{color:#4ade80;}
+.stat-label{font-size:.72rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-top:.4rem;}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-left">
+    <img src="https://i.imgur.com/C3KSVoE.png" alt="CHL" class="nav-logo">
+    <span class="nav-title">CHL Stock</span>
+    <span class="nav-badge">📢 Annonces</span>
+  </div>
+  <div class="nav-right">
+    <a href="guide.html" class="btn-nav">📖 Guide</a>
+    <a href="index.html" class="btn-nav primary">🔐 Connexion</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-eyebrow"><div class="pulse-dot"></div>Système en ligne · v2.0</div>
+  <h1>CHL <span class="red">GESTION</span><br><span class="dim">STOCK</span></h1>
+  <p class="hero-sub">Plateforme de gestion des stocks médicaux du Centre Hospitalier de Liège. Retrouvez ici les dernières mises à jour, annonces officielles et le plan de développement.</p>
+  <div class="hero-actions">
+    <a href="index.html" class="btn-hero main">🔐 Accéder au système</a>
+    <a href="guide.html" class="btn-hero ghost">📖 Lire le guide</a>
+  </div>
+</section>
+
+<div class="version-bar">
+  <div class="version-bar-inner">
+    <span class="v-tag">v2.0</span>
+    <span class="v-text">Connexion par code Discord · Graphiques temps réel · Base de données Google Sheets</span>
+    <span class="v-date">— Mars 2025</span>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-num red">2</div>
+      <div class="stat-label">Zones de stock</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num blue">23</div>
+      <div class="stat-label">Produits suivis</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num green">100%</div>
+      <div class="stat-label">Temps réel</div>
+    </div>
+  </div>
+
+  <!-- Annonces -->
+  <div class="section-header">
+    <div class="section-icon icon-red">📢</div>
+    <div class="section-title-text">Annonces officielles</div>
+  </div>
+
+  <div class="announce-list">
+
+    <div class="announce-card pinned" style="animation-delay:.05s">
+      <div class="announce-icon-wrap" style="background:rgba(192,57,43,0.12);border:1px solid rgba(192,57,43,0.2);">🚀</div>
+      <div class="announce-body">
+        <div class="announce-meta">
+          <span class="announce-tag tag-update">Mise à jour majeure</span>
+          <span class="announce-date">Mars 2025</span>
+        </div>
+        <div class="announce-title">Lancement de la v2.0 — Google Sheets & Graphiques</div>
+        <div class="announce-desc">
+          Le système de gestion des stocks passe en <strong>version 2.0</strong>. Toutes les actions (ajouts, retraits) sont désormais enregistrées en temps réel dans une base de données <strong>Google Sheets</strong>. Les pages Pharmacie et Salle de soin affichent maintenant des <strong>graphiques d'activité</strong> et un classement des produits les plus et moins utilisés, mis à jour automatiquement toutes les 60 secondes.
+        </div>
+      </div>
+      <div class="pin-icon">📌</div>
+    </div>
+
+    <div class="announce-card" style="animation-delay:.1s">
+      <div class="announce-icon-wrap" style="background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.2);">🔐</div>
+      <div class="announce-body">
+        <div class="announce-meta">
+          <span class="announce-tag tag-feature">Sécurité</span>
+          <span class="announce-date">Février 2025</span>
+        </div>
+        <div class="announce-title">Authentification par code Discord</div>
+        <div class="announce-desc">
+          Le système de connexion a été renforcé. Chaque connexion nécessite désormais un <strong>code à 6 chiffres envoyé en message privé Discord</strong>, garantissant qu'aucune usurpation d'identité n'est possible. Chaque connexion est également <strong>loguée automatiquement</strong> sur le canal Discord dédié.
+        </div>
+      </div>
+      <div></div>
+    </div>
+
+    <div class="announce-card" style="animation-delay:.15s">
+      <div class="announce-icon-wrap" style="background:rgba(39,174,96,0.12);border:1px solid rgba(39,174,96,0.2);">🎨</div>
+      <div class="announce-body">
+        <div class="announce-meta">
+          <span class="announce-tag tag-update">Interface</span>
+          <span class="announce-date">Février 2025</span>
+        </div>
+        <div class="announce-title">Refonte complète de l'interface</div>
+        <div class="announce-desc">
+          L'interface a été entièrement redessinée avec un thème <strong>médical sombre</strong> aux couleurs officielles du CHL. Les popups natives du navigateur ont été remplacées par des <strong>modales personnalisées</strong> et des <strong>notifications latérales animées</strong>. Des indicateurs de chargement accompagnent désormais chaque action.
+        </div>
+      </div>
+      <div></div>
+    </div>
+
+    <div class="announce-card" style="animation-delay:.2s">
+      <div class="announce-icon-wrap" style="background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.2);">⚠️</div>
+      <div class="announce-body">
+        <div class="announce-meta">
+          <span class="announce-tag tag-important">Important</span>
+          <span class="announce-date">En cours</span>
+        </div>
+        <div class="announce-title">Rappel — Déclarer dans la bonne zone</div>
+        <div class="announce-desc">
+          Rappel important : chaque retrait ou ajout doit être effectué <strong>sur la page correspondant au lieu physique</strong> (Pharmacie ou Salle de soin). Le lieu est enregistré définitivement dans les logs Google Sheets et Discord. Une erreur de zone fausse les statistiques globales.
+        </div>
+      </div>
+      <div></div>
+    </div>
+
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Futures fonctionnalités -->
+  <div class="section-header">
+    <div class="section-icon icon-purple">🔮</div>
+    <div class="section-title-text">Futures fonctionnalités</div>
+  </div>
+
+  <div class="features-grid">
+
+    <div class="feature-card fc-blue">
+      <div class="feature-icon">📊</div>
+      <div class="feature-name">Statistiques avancées</div>
+      <div class="feature-desc">Tableau de bord dédié avec graphiques détaillés par produit, par utilisateur et par période. Export PDF des rapports mensuels.</div>
+      <div class="feature-status status-wip"><div class="status-dot"></div>En développement</div>
+    </div>
+
+    <div class="feature-card fc-green">
+      <div class="feature-icon">🗄️</div>
+      <div class="feature-name">Base de données temps réel</div>
+      <div class="feature-desc">Migration vers une base de données cloud dédiée pour un accès multi-utilisateur simultané et une synchronisation instantanée entre tous les postes.</div>
+      <div class="feature-status status-soon"><div class="status-dot"></div>Bientôt disponible</div>
+    </div>
+
+    <div class="feature-card fc-yellow">
+      <div class="feature-icon">🔔</div>
+      <div class="feature-name">Alertes de stock bas</div>
+      <div class="feature-desc">Notification automatique sur Discord lorsqu'un produit passe en dessous d'un seuil critique. Configurable par produit et par zone.</div>
+      <div class="feature-status status-soon"><div class="status-dot"></div>Bientôt disponible</div>
+    </div>
+
+    <div class="feature-card fc-purple">
+      <div class="feature-icon">👥</div>
+      <div class="feature-name">Gestion des utilisateurs</div>
+      <div class="feature-desc">Panel administrateur pour gérer les accès, attribuer des rôles (lecture seule, éditeur, admin) et consulter l'historique par utilisateur.</div>
+      <div class="feature-status status-planned"><div class="status-dot"></div>Planifié</div>
+    </div>
+
+    <div class="feature-card fc-red">
+      <div class="feature-icon">📦</div>
+      <div class="feature-name">Commandes automatiques</div>
+      <div class="feature-desc">Génération automatique de bons de commande lorsque le stock d'un produit atteint le seuil minimum défini. Envoi par Discord ou email.</div>
+      <div class="feature-status status-planned"><div class="status-dot"></div>Planifié</div>
+    </div>
+
+    <div class="feature-card fc-blue">
+      <div class="feature-icon">📱</div>
+      <div class="feature-name">Application mobile</div>
+      <div class="feature-desc">Version mobile native optimisée pour une utilisation rapide sur le terrain, avec scanner de QR code pour identifier les produits instantanément.</div>
+      <div class="feature-status status-planned"><div class="status-dot"></div>Planifié</div>
+    </div>
+
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Roadmap -->
+  <div class="section-header">
+    <div class="section-icon icon-yellow">🗺️</div>
+    <div class="section-title-text">Roadmap</div>
+  </div>
+
+  <div class="roadmap">
+
+    <div class="rm-item">
+      <div class="rm-date">Jan 2025</div>
+      <div class="rm-line-wrap">
+        <div class="rm-dot done"></div>
+        <div class="rm-connector"></div>
+      </div>
+      <div class="rm-body">
+        <div class="rm-title">✅ v1.0 — Lancement initial</div>
+        <div class="rm-desc">Mise en place du bot Discord, des pages de gestion de stock Pharmacie et Salle de soin, authentification basique.</div>
+      </div>
+    </div>
+
+    <div class="rm-item">
+      <div class="rm-date">Fév 2025</div>
+      <div class="rm-line-wrap">
+        <div class="rm-dot done"></div>
+        <div class="rm-connector"></div>
+      </div>
+      <div class="rm-body">
+        <div class="rm-title">✅ v1.5 — Sécurité & UX</div>
+        <div class="rm-desc">Authentification par code Discord DM, refonte de l'interface, modales personnalisées, notifications animées.</div>
+      </div>
+    </div>
+
+    <div class="rm-item">
+      <div class="rm-date">Mars 2025</div>
+      <div class="rm-line-wrap">
+        <div class="rm-dot current"></div>
+        <div class="rm-connector"></div>
+      </div>
+      <div class="rm-body current-item">
+        <div class="rm-title">🔴 v2.0 — Google Sheets & Graphiques (actuel)</div>
+        <div class="rm-desc">Intégration Google Sheets comme base de données, graphiques d'activité temps réel, classement des produits.</div>
+      </div>
+    </div>
+
+    <div class="rm-item">
+      <div class="rm-date">Q2 2025</div>
+      <div class="rm-line-wrap">
+        <div class="rm-dot upcoming"></div>
+        <div class="rm-connector"></div>
+      </div>
+      <div class="rm-body">
+        <div class="rm-title">⏳ v2.5 — Statistiques avancées & Alertes</div>
+        <div class="rm-desc">Tableau de bord analytique, alertes stock bas sur Discord, export de rapports mensuels.</div>
+      </div>
+    </div>
+
+    <div class="rm-item">
+      <div class="rm-date">Q3 2025</div>
+      <div class="rm-line-wrap">
+        <div class="rm-dot upcoming"></div>
+        <div class="rm-connector"></div>
+      </div>
+      <div class="rm-body">
+        <div class="rm-title">⏳ v3.0 — Base de données dédiée & Multi-utilisateurs</div>
+        <div class="rm-desc">Migration base de données cloud, gestion des rôles utilisateurs, synchronisation temps réel entre postes, commandes automatiques.</div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+// Stagger animation des cartes
+document.querySelectorAll('.feature-card').forEach((el,i)=>{
+  el.style.animationDelay=`${i*0.07}s`;
+  el.style.animation='fadeUp .5s cubic-bezier(.16,1,.3,1) both';
+});
+</script>
+</body>
+</html>
