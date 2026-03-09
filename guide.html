@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guide – CHL Gestion Stock</title>
+<link rel="icon" type="image/png" href="https://i.imgur.com/C3KSVoE.png">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080a0c;
+  --surface: #0f1214;
+  --card: #141820;
+  --card2: #181e28;
+  --accent: #c0392b;
+  --accent-glow: rgba(192,57,43,0.3);
+  --accent-light: #e74c3c;
+  --text: #e8eaf0;
+  --text-muted: #6b7280;
+  --border: #1e2530;
+  --border-light: #2a3340;
+  --success: #27ae60;
+  --blue: #3b82f6;
+  --blue-light: #60a5fa;
+  --white: #ffffff;
+  --yellow: #f59e0b;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 15% 10%, rgba(192,57,43,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 50% at 85% 80%, rgba(59,130,246,0.04) 0%, transparent 55%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(192,57,43,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(192,57,43,0.022) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Navbar ── */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(8,10,12,0.92);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-left { display: flex; align-items: center; gap: 0.75rem; }
+.nav-logo { width: 32px; height: 32px; object-fit: contain; }
+.nav-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; letter-spacing: 2px; color: var(--white); }
+.nav-badge {
+  font-size: 0.62rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+  background: rgba(245,158,11,0.12); color: #fcd34d;
+  border: 1px solid rgba(245,158,11,0.25);
+  padding: 0.2rem 0.65rem; border-radius: 20px;
+}
+
+.btn-back {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  background: transparent; border: 1px solid var(--border-light);
+  color: var(--text-muted); padding: 0.4rem 0.9rem;
+  border-radius: 8px; font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem; font-weight: 500; cursor: pointer;
+  text-decoration: none; transition: all 0.2s;
+}
+.btn-back:hover { border-color: var(--accent); color: var(--accent-light); }
+
+/* ── Layout ── */
+.layout {
+  position: relative; z-index: 1;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 0;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem;
+  align-items: start;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  position: sticky;
+  top: 80px;
+  padding-right: 2rem;
+  animation: fadeUp 0.4s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+.sidebar-title {
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text-muted);
+  margin-bottom: 0.75rem; padding-left: 0.5rem;
+}
+
+.sidebar-nav { display: flex; flex-direction: column; gap: 0.2rem; }
+
+.sidebar-link {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: all 0.18s;
+  border: 1px solid transparent;
+}
+
+.sidebar-link:hover {
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.sidebar-link.active {
+  background: rgba(192,57,43,0.1);
+  color: var(--accent-light);
+  border-color: rgba(192,57,43,0.2);
+}
+
+.sidebar-icon { font-size: 1rem; flex-shrink: 0; }
+
+.sidebar-divider {
+  height: 1px; background: var(--border);
+  margin: 0.75rem 0.5rem;
+}
+
+/* ── Content ── */
+.content {
+  animation: fadeUp 0.5s 0.1s cubic-bezier(0.16,1,0.3,1) both;
+  min-width: 0;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Hero */
+.hero {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 220px; height: 220px;
+  background: radial-gradient(circle, rgba(192,57,43,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-label {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--accent-light);
+  margin-bottom: 0.75rem;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+
+.hero h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.6rem; letter-spacing: 3px;
+  color: var(--white); line-height: 1;
+  margin-bottom: 1rem;
+}
+
+.hero h1 span { color: var(--accent-light); }
+
+.hero p {
+  font-size: 0.95rem; color: var(--text-muted);
+  max-width: 520px; line-height: 1.7;
+}
+
+/* Section */
+.section {
+  margin-bottom: 2.5rem;
+  scroll-margin-top: 80px;
+}
+
+.section-header {
+  display: flex; align-items: center; gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.section-icon {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.icon-red   { background: rgba(192,57,43,0.12); border: 1px solid rgba(192,57,43,0.2); }
+.icon-blue  { background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.2); }
+.icon-green { background: rgba(39,174,96,0.12);  border: 1px solid rgba(39,174,96,0.2); }
+.icon-yellow{ background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.2); }
+
+.section-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem; letter-spacing: 2px; color: var(--white);
+}
+
+/* Steps */
+.steps { display: flex; flex-direction: column; gap: 0; }
+
+.step {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 0 1.2rem;
+  position: relative;
+}
+
+.step:not(:last-child) .step-line {
+  position: absolute;
+  left: 19px; top: 40px; bottom: -8px;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--border-light), transparent);
+}
+
+.step-num {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: var(--card2);
+  border: 2px solid var(--border-light);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem; letter-spacing: 1px;
+  color: var(--accent-light);
+  flex-shrink: 0;
+  margin-top: 2px;
+  position: relative; z-index: 1;
+}
+
+.step-body {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.1rem 1.3rem;
+  margin-bottom: 1rem;
+}
+
+.step-body h3 {
+  font-size: 0.92rem; font-weight: 600;
+  color: var(--white); margin-bottom: 0.4rem;
+}
+
+.step-body p {
+  font-size: 0.85rem; color: var(--text-muted); line-height: 1.65;
+}
+
+.step-body p strong { color: var(--text); }
+
+/* Alert boxes */
+.alert {
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.alert-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+.alert-body { flex: 1; }
+.alert-title { font-weight: 600; margin-bottom: 0.25rem; font-size: 0.88rem; }
+
+.alert-warning {
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.2);
+  color: #fcd34d;
+}
+
+.alert-info {
+  background: rgba(59,130,246,0.08);
+  border: 1px solid rgba(59,130,246,0.2);
+  color: var(--blue-light);
+}
+
+.alert-success {
+  background: rgba(39,174,96,0.08);
+  border: 1px solid rgba(39,174,96,0.2);
+  color: #4ade80;
+}
+
+.alert-danger {
+  background: rgba(192,57,43,0.08);
+  border: 1px solid rgba(192,57,43,0.2);
+  color: #f87171;
+}
+
+/* Location cards */
+.location-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.loc-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.4rem 1.3rem;
+  transition: border-color 0.2s;
+}
+
+.loc-card:hover { border-color: var(--border-light); }
+
+.loc-card.pharma { border-top: 3px solid var(--accent); }
+.loc-card.soin   { border-top: 3px solid var(--blue); }
+
+.loc-icon { font-size: 1.8rem; margin-bottom: 0.6rem; }
+
+.loc-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.15rem; letter-spacing: 1.5px;
+  color: var(--white); margin-bottom: 0.4rem;
+}
+
+.loc-card.pharma .loc-name { color: var(--accent-light); }
+.loc-card.soin   .loc-name { color: var(--blue-light); }
+
+.loc-desc {
+  font-size: 0.82rem; color: var(--text-muted); line-height: 1.6;
+}
+
+.loc-tag {
+  display: inline-block;
+  margin-top: 0.75rem;
+  font-size: 0.68rem; font-weight: 700;
+  letter-spacing: 1.2px; text-transform: uppercase;
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+}
+
+.loc-card.pharma .loc-tag {
+  background: rgba(192,57,43,0.12);
+  color: var(--accent-light);
+  border: 1px solid rgba(192,57,43,0.25);
+}
+
+.loc-card.soin .loc-tag {
+  background: rgba(59,130,246,0.12);
+  color: var(--blue-light);
+  border: 1px solid rgba(59,130,246,0.25);
+}
+
+/* Rule list */
+.rule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.rule-item {
+  display: flex;
+  gap: 0.75rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.9rem 1.1rem;
+  font-size: 0.86rem;
+  align-items: flex-start;
+}
+
+.rule-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.dot-red   { background: var(--accent-light); box-shadow: 0 0 6px var(--accent-glow); }
+.dot-green { background: #4ade80; box-shadow: 0 0 6px rgba(74,222,128,0.4); }
+.dot-blue  { background: var(--blue-light); }
+.dot-yellow{ background: #fcd34d; }
+
+.rule-item p { color: var(--text-muted); line-height: 1.55; }
+.rule-item p strong { color: var(--text); }
+
+/* FAQ */
+.faq { display: flex; flex-direction: column; gap: 0.7rem; }
+
+.faq-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.faq-q {
+  width: 100%;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.2rem;
+  background: transparent;
+  border: none; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem; font-weight: 600;
+  color: var(--text);
+  text-align: left;
+  transition: color 0.2s;
+  gap: 1rem;
+}
+
+.faq-q:hover { color: var(--accent-light); }
+
+.faq-arrow {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  transition: transform 0.25s;
+  flex-shrink: 0;
+}
+
+.faq-item.open .faq-arrow { transform: rotate(180deg); }
+
+.faq-a {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+  padding: 0 1.2rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
+.faq-item.open .faq-a {
+  max-height: 300px;
+  padding: 0 1.2rem 1rem;
+}
+
+/* Divider */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(to right, var(--border), transparent);
+  margin: 2rem 0;
+}
+
+/* CTA */
+.cta {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 60% at 50% 100%, rgba(192,57,43,0.08), transparent);
+  pointer-events: none;
+}
+
+.cta h3 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem; letter-spacing: 2px;
+  color: var(--white); margin-bottom: 0.5rem;
+}
+
+.cta p { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+
+.btn-cta {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: var(--accent); color: white;
+  padding: 0.75rem 1.8rem;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem; font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+  box-shadow: 0 4px 20px var(--accent-glow);
+}
+
+.btn-cta:hover {
+  background: var(--accent-light);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px var(--accent-glow);
+}
+
+/* Responsive */
+@media (max-width: 720px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .location-grid { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 2rem; }
+}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-left">
+    <img src="https://i.imgur.com/C3KSVoE.png" alt="CHL" class="nav-logo">
+    <span class="nav-title">CHL Stock</span>
+    <span class="nav-badge">📖 Guide</span>
+  </div>
+  <a href="index.html" class="btn-back">← Retour à la connexion</a>
+</nav>
+
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-title">Sur cette page</div>
+    <nav class="sidebar-nav">
+      <a href="#intro" class="sidebar-link active"><span class="sidebar-icon">👋</span> Introduction</a>
+      <a href="#login" class="sidebar-link"><span class="sidebar-icon">🔐</span> Se connecter</a>
+      <a href="#navigation" class="sidebar-link"><span class="sidebar-icon">🗺️</span> Navigation</a>
+      <a href="#stock" class="sidebar-link"><span class="sidebar-icon">📦</span> Gérer le stock</a>
+      <a href="#lieux" class="sidebar-link"><span class="sidebar-icon">📍</span> Importance des lieux</a>
+      <div class="sidebar-divider"></div>
+      <a href="#regles" class="sidebar-link"><span class="sidebar-icon">📋</span> Règles à suivre</a>
+      <a href="#faq" class="sidebar-link"><span class="sidebar-icon">❓</span> FAQ</a>
+    </nav>
+  </aside>
+
+  <!-- Content -->
+  <main class="content">
+
+    <!-- Hero -->
+    <div class="hero" id="intro">
+      <div class="hero-label">📖 Documentation officielle</div>
+      <h1>Guide d'utilisation <span>CHL</span></h1>
+      <p>Bienvenue sur le système de gestion des stocks du Centre Hospitalier de Liège. Ce guide vous explique comment vous connecter, naviguer entre les sections, et surtout comment déclarer correctement chaque mouvement de stock.</p>
+    </div>
+
+    <!-- LOGIN -->
+    <section class="section" id="login">
+      <div class="section-header">
+        <div class="section-icon icon-red">🔐</div>
+        <div class="section-title">Se connecter au système</div>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <div class="step-line"></div>
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h3>Entrez votre pseudo Discord</h3>
+            <p>Sur la page de connexion, saisissez votre <strong>pseudo Discord exact</strong> (celui que vous utilisez sur le serveur CHL). Attention, la recherche est sensible à la casse et aux espaces.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-line"></div>
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h3>Cliquez sur "Envoyer le code par DM"</h3>
+            <p>Le bot CHL vous enverra automatiquement un <strong>code à 6 chiffres</strong> en message privé Discord. Assurez-vous que vos messages privés sont ouverts aux membres du serveur.</p>
+            <div class="alert alert-warning">
+              <div class="alert-icon">⚠️</div>
+              <div class="alert-body">
+                <div class="alert-title">Code valable 10 minutes</div>
+                Le code expire après 10 minutes. Si vous ne l'avez pas reçu ou qu'il a expiré, cliquez à nouveau sur "Envoyer le code".
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-line"></div>
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h3>Récupérez le code dans vos DM Discord</h3>
+            <p>Ouvrez Discord → Messages privés → Bot CHL. Vous verrez un message avec votre code. <strong>Ne partagez jamais ce code</strong> avec quelqu'un d'autre, il est personnel et à usage unique.</p>
+            <div class="alert alert-danger">
+              <div class="alert-icon">🚫</div>
+              <div class="alert-body">
+                <div class="alert-title">Ne partagez jamais votre code</div>
+                Ce système existe pour éviter l'usurpation d'identité. Chaque action est tracée et liée à votre compte Discord.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <h3>Saisissez le code et connectez-vous</h3>
+            <p>Entrez le code reçu dans le champ prévu, puis cliquez sur <strong>"Se connecter"</strong>. Vous serez automatiquement redirigé vers le tableau de bord du stock Pharmacie.</p>
+            <div class="alert alert-success">
+              <div class="alert-icon">✅</div>
+              <div class="alert-body">
+                <div class="alert-title">Connexion confirmée sur Discord</div>
+                À chaque connexion réussie, un message est automatiquement posté dans le canal de log Discord avec votre nom et l'heure.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- NAVIGATION -->
+    <section class="section" id="navigation">
+      <div class="section-header">
+        <div class="section-icon icon-blue">🗺️</div>
+        <div class="section-title">Naviguer dans l'application</div>
+      </div>
+
+      <div class="rule-list">
+        <div class="rule-item">
+          <div class="rule-dot dot-red"></div>
+          <p>Après connexion, vous arrivez sur la page <strong>Stock Pharmacie</strong>. C'est la zone principale de gestion des médicaments et équipements pharmaceutiques.</p>
+        </div>
+        <div class="rule-item">
+          <div class="rule-dot dot-blue"></div>
+          <p>Le bouton <strong>"Salle de soin →"</strong> en haut de page vous permet de basculer vers le stock de la Salle de soin, et inversement.</p>
+        </div>
+        <div class="rule-item">
+          <div class="rule-dot dot-yellow"></div>
+          <p>Le bouton <strong>"Déconnexion"</strong> en haut à droite vous déconnecte et efface votre session. Vous devrez vous reconnecter via le code Discord à votre prochaine visite.</p>
+        </div>
+        <div class="rule-item">
+          <div class="rule-dot dot-green"></div>
+          <p>Les quantités affichées sont <strong>sauvegardées localement</strong> dans votre navigateur. Si vous changez d'appareil ou videz votre cache, le stock repart à 0 localement — mais les logs Discord restent intacts.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- STOCK -->
+    <section class="section" id="stock">
+      <div class="section-header">
+        <div class="section-icon icon-green">📦</div>
+        <div class="section-title">Gérer le stock</div>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <div class="step-line"></div>
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h3>Repérez le produit concerné</h3>
+            <p>Parcourez le tableau et trouvez l'article que vous souhaitez modifier. Les quantités à <strong style="color:#f87171">0 sont affichées en rouge</strong> pour signaler une rupture de stock.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-line"></div>
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h3>Cliquez sur "+ Ajouter" ou "− Retirer"</h3>
+            <p>Une fenêtre s'ouvre pour vous demander la quantité. Saisissez un nombre entier positif. Vous pouvez valider avec <strong>Entrée</strong> ou annuler avec <strong>Échap</strong>.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h3>Confirmez l'action</h3>
+            <p>Cliquez sur <strong>"Ajouter"</strong> ou <strong>"Retirer"</strong> selon l'action. Un écran de chargement apparaît brièvement, puis une notification latérale confirme que le stock a été mis à jour et que le log a été envoyé sur Discord.</p>
+            <div class="alert alert-info">
+              <div class="alert-icon">ℹ️</div>
+              <div class="alert-body">
+                <div class="alert-title">Log automatique sur Discord</div>
+                Chaque action (ajout ou retrait) génère un message dans le canal de log Discord avec votre nom, le produit, la quantité et le lieu concerné.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- LIEUX -->
+    <section class="section" id="lieux">
+      <div class="section-header">
+        <div class="section-icon icon-yellow">📍</div>
+        <div class="section-title">L'importance des lieux</div>
+      </div>
+
+      <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1.25rem; line-height:1.7;">
+        Le système distingue <strong style="color:var(--text)">deux zones de stock distinctes</strong>. Il est impératif d'effectuer votre action sur la bonne page selon l'endroit physique où vous vous trouvez ou d'où provient le matériel. Chaque retrait ou ajout est horodaté et associé au lieu déclaré.
+      </p>
+
+      <div class="location-grid">
+        <div class="loc-card pharma">
+          <div class="loc-icon">💊</div>
+          <div class="loc-name">Pharmacie</div>
+          <div class="loc-desc">Zone de stockage principal des médicaments, poches de sang, injecteurs et équipements pharmaceutiques. Accès via la page <em>Stock Pharmacie</em>.</div>
+          <span class="loc-tag">Page home1.html</span>
+        </div>
+        <div class="loc-card soin">
+          <div class="loc-icon">🏥</div>
+          <div class="loc-name">Salle de soin</div>
+          <div class="loc-desc">Zone opérationnelle de soins directs aux patients. Bandages, kits chirurgicaux, dispositifs d'urgence. Accès via la page <em>Stock Salle de soin</em>.</div>
+          <span class="loc-tag">Page home2.html</span>
+        </div>
+      </div>
+
+      <div class="alert alert-danger" style="margin-top:1.2rem;">
+        <div class="alert-icon">🚨</div>
+        <div class="alert-body">
+          <div class="alert-title">Ne jamais déclarer dans la mauvaise zone</div>
+          Si vous retirez un garrot de la Salle de soin mais que vous le déclarez sur la page Pharmacie, le log Discord sera incorrect et les stocks seront faussés. Soyez toujours sur la bonne page avant d'agir.
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- RÈGLES -->
+    <section class="section" id="regles">
+      <div class="section-header">
+        <div class="section-icon icon-red">📋</div>
+        <div class="section-title">Règles à suivre</div>
+      </div>
+
+      <div class="rule-list">
+        <div class="rule-item">
+          <div class="rule-dot dot-red"></div>
+          <p><strong>Déclarez immédiatement</strong> tout mouvement de stock au moment où il se produit. Ne pas attendre la fin de service pour regrouper plusieurs actions.</p>
+        </div>
+        <div class="rule-item">
+          <div class="rule-dot dot-red"></div>
+          <p><strong>Vérifiez que vous êtes sur la bonne page</strong> (Pharmacie ou Salle de soin) avant tout ajout ou retrait. Le lieu est enregistré de façon permanente dans les logs.</p>
+        </div>
+        <div class="rule-item">
+          <div class="rule-dot dot-yellow"></div>
+          <p><strong>Ne communiquez jamais votre code</strong> de connexion à un collègue. Chaque membre du personnel doit utiliser son propre compte Discord pour se connecter.</p>
+        </div>
+        <div class="rule-item">
+          <div class="rule-dot dot-yellow"></div>
+          <p><strong>En cas d'erreur de quantité</strong>, effectuez une action corrective inverse (ex : si vous avez retiré 10 au lieu de 5, rajoutez 5) et signalez-le dans le canal Discord prévu.</p>
+        </div>
+        <div class="rule-item">
+          <div class="rule-dot dot-green"></div>
+          <p><strong>Déconnectez-vous</strong> après chaque session, surtout si vous utilisez un poste partagé. Le bouton "Déconnexion" se trouve en haut à droite de chaque page.</p>
+        </div>
+        <div class="rule-item">
+          <div class="rule-dot dot-blue"></div>
+          <p><strong>En cas de bug ou problème</strong> (code non reçu, erreur serveur, quantité incorrecte), contactez un responsable directement sur le serveur Discord CHL.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- FAQ -->
+    <section class="section" id="faq">
+      <div class="section-header">
+        <div class="section-icon icon-blue">❓</div>
+        <div class="section-title">Questions fréquentes</div>
+      </div>
+
+      <div class="faq">
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Je n'ai pas reçu mon code Discord, que faire ?
+            <span class="faq-arrow">▼</span>
+          </button>
+          <div class="faq-a">
+            Vérifiez d'abord que vos messages privés sont ouverts aux membres du serveur CHL (Paramètres Discord → Confidentialité). Si c'est le cas, attendez quelques secondes et cliquez à nouveau sur "Envoyer le code". Si le problème persiste, vérifiez l'orthographe exacte de votre pseudo Discord.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Mon code est "invalide ou expiré", que faire ?
+            <span class="faq-arrow">▼</span>
+          </button>
+          <div class="faq-a">
+            Le code expire après 10 minutes et ne fonctionne qu'une seule fois. Si vous avez attendu trop longtemps ou que la connexion a échoué une première fois, cliquez sur "Envoyer le code" pour en recevoir un nouveau et réessayez rapidement.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Le stock affiché ne correspond pas à la réalité, pourquoi ?
+            <span class="faq-arrow">▼</span>
+          </button>
+          <div class="faq-a">
+            Les quantités sont stockées localement dans votre navigateur. Si quelqu'un d'autre a modifié le stock depuis un autre appareil, votre affichage ne se met pas à jour automatiquement. Référez-vous toujours aux logs Discord pour connaître l'état réel du stock.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            J'ai fait une erreur de quantité, comment corriger ?
+            <span class="faq-arrow">▼</span>
+          </button>
+          <div class="faq-a">
+            Effectuez immédiatement l'action inverse pour corriger l'écart (ex : si vous avez retiré 10 au lieu de 5, faites "+5"). Signalez ensuite l'erreur dans le canal Discord dédié afin qu'un responsable puisse annoter les logs.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Puis-je utiliser l'application sur mon téléphone ?
+            <span class="faq-arrow">▼</span>
+          </button>
+          <div class="faq-a">
+            Oui, l'application est entièrement responsive et fonctionne sur mobile. Ouvrez simplement l'URL dans votre navigateur mobile. Pensez à avoir Discord d'ouvert à côté pour récupérer votre code de connexion.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Le serveur met du temps à répondre au premier chargement ?
+            <span class="faq-arrow">▼</span>
+          </button>
+          <div class="faq-a">
+            C'est normal. Le serveur API est hébergé sur un plan gratuit et peut se mettre en veille après une période d'inactivité. Le premier appel peut prendre jusqu'à 30 secondes pour "réveiller" le serveur. Les requêtes suivantes seront instantanées.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- CTA -->
+    <div class="cta">
+      <h3>Prêt à vous connecter ?</h3>
+      <p>Vous avez toutes les informations nécessaires pour utiliser le système correctement.</p>
+      <a href="index.html" class="btn-cta">🔐 Accéder à la connexion</a>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  function toggleFaq(btn) {
+    const item = btn.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  }
+
+  // Highlight sidebar link on scroll
+  const sections = document.querySelectorAll('.section, .hero');
+  const links = document.querySelectorAll('.sidebar-link');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const id = entry.target.id;
+        const active = document.querySelector(`.sidebar-link[href="#${id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+
+  sections.forEach(s => { if (s.id) observer.observe(s); });
+</script>
+</body>
+</html>
