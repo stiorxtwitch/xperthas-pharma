@@ -10,7 +10,7 @@
 
 <style>
 
-:root {
+:root{
 --bg:#0d1117;
 --card:#161b22;
 --accent:#00d084;
@@ -42,22 +42,8 @@ background:var(--table-head);
 color:var(--accent);
 }
 
-.btn-success,.btn-warning{
-font-size:0.85rem;
-padding:0.35rem 0.75rem;
-}
-
-.btn-outline-danger{
-border-color:var(--danger);
-color:var(--danger);
-}
-
-.btn-outline-danger:hover{
-background:var(--danger);
-color:white;
-}
-
 </style>
+
 </head>
 
 <body>
@@ -105,7 +91,7 @@ Aller au stock Salle de soin →
 
 <script>
 
-if (!localStorage.getItem('chl_logged_in')) {
+if(!localStorage.getItem('chl_logged_in')){
 window.location.href='index.html'
 }
 
@@ -113,7 +99,6 @@ const logged = JSON.parse(localStorage.getItem('chl_logged_in'))
 const USER = logged?.user || 'Inconnu'
 
 const API_BASE = 'http://localhost:3000/api'
-
 
 const ITEMS = [
 
@@ -168,13 +153,13 @@ ${stock[item]}
 <td>
 
 <button class="btn btn-success btn-sm me-1"
-onclick="updateStock('${item}',1)">
-+1
+onclick="changeStock('${item}','add')">
+Ajouter
 </button>
 
-<button class="btn btn-warning btn-sm"
-onclick="updateStock('${item}',-1)">
--1
+<button class="btn btn-danger btn-sm"
+onclick="changeStock('${item}','remove')">
+Retirer
 </button>
 
 </td>
@@ -185,14 +170,24 @@ tbody.appendChild(tr)
 
 })
 
+async function changeStock(item,type){
 
-async function updateStock(item,delta){
+let qty = prompt("Quelle quantité ?")
 
-stock[item]=Math.max(0,(stock[item]||0)+delta)
+qty = parseInt(qty)
+
+if(!qty || qty <= 0){
+alert("Quantité invalide")
+return
+}
+
+let delta = type === "add" ? qty : -qty
+
+stock[item] = Math.max(0,(stock[item]||0)+delta)
 
 const id=item.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'')
 
-document.getElementById(`qty-${id}`).textContent=stock[item]
+document.getElementById(`qty-${id}`).textContent = stock[item]
 
 localStorage.setItem('chl_pharmacie_stock',JSON.stringify(stock))
 
@@ -219,12 +214,11 @@ location:'Pharmacie'
 
 }catch(err){
 
-console.warn('Log non envoyé',err)
+console.warn("Log non envoyé",err)
 
 }
 
 }
-
 
 function logout(){
 
