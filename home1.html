@@ -558,17 +558,25 @@ let stock = JSON.parse(localStorage.getItem('chl_pharmacie_stock')) || {};
 ITEMS.forEach(item => { if (!(item in stock)) stock[item] = 0; });
 
 const tbody = document.getElementById('stockTable');
-ITEMS.forEach(item => {
+ITEMS.forEach((item, index) => {
   const tr = document.createElement('tr');
   const id = item.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'');
   tr.innerHTML = `
     <td class="item-name">${item}</td>
     <td><span class="qty-cell ${stock[item] === 0 ? 'qty-zero' : ''}" id="qty-${id}">${stock[item]}</span></td>
     <td class="actions-cell">
-      <button class="btn-add" onclick="openModal('${item}','add')">+ Ajouter</button>
-      <button class="btn-rem" onclick="openModal('${item}','remove')">− Retirer</button>
+      <button class="btn-add" data-index="${index}" data-type="add">+ Ajouter</button>
+      <button class="btn-rem" data-index="${index}" data-type="remove">− Retirer</button>
     </td>`;
   tbody.appendChild(tr);
+});
+
+document.getElementById('stockTable').addEventListener('click', e => {
+  const btn = e.target.closest('[data-index]');
+  if (!btn) return;
+  const item = ITEMS[parseInt(btn.dataset.index)];
+  const type = btn.dataset.type;
+  openModal(item, type);
 });
 
 /* ---- Toast ---- */
